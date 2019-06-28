@@ -1,5 +1,5 @@
 # Dice Dungeon
-Dice Dungeon is a game for Discord, created as an entry for [Discord Hack Week](https://blog.discordapp.com/discord-community-hack-week-build-and-create-alongside-us-6b2a7b7bba33).<br/>
+Dice Dungeon is a game for Discord created by me (Elon Musk#2102).<br/>It is my entry for [Discord Hack Week](https://blog.discordapp.com/discord-community-hack-week-build-and-create-alongside-us-6b2a7b7bba33).<br/>
 It is heavily inspired by the game [Malleus Goblinificarium](https://ampersandbear.itch.io/malleus-goblinficarium) made by [Ampersandbear](https://ampersandbear.itch.io/).
 
 ## Notes
