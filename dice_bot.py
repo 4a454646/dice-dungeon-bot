@@ -27,7 +27,7 @@ values = {'---(0)':0, 'aim(1)':1, 'spd(1)':2, 'aim(2)':3, 'spd(2)':4, 'aim(3)':5
 kinds = ['atk', 'def', 'spd', 'aim']
 targets = {'c':'chest', 'g':'guts', 'l':'legs', 'a':'arms', 'h':'head'}
 target_list = ['filler', 'chest', 'filler', 'guts', 'filler', 'legs', 'filler', 'arms', 'filler', 'head']
-loot_list = ['totem', 'totem', 'totem', 'totem', 'totem', 'minor potion of atk', 'minor potion of atk', 'minor potion of atk', 'minor potion of def', 'minor potion of def', 'minor potion of def', 'minor potion of spd', 'minor potion of spd', 'minor potion of spd', 'minor potion of aim', 'minor potion of aim', 'minor potion of aim', 'minor potion of weakness', 'minor potion of weakness', 'minor splash potion of weakness', 'potion of atk', 'potion of atk', 'potion of def', 'potion of spd', 'potion of spd', 'potion of aim', 'potion of aim', 'potion of weakness', 'ring of atk', 'ring of def', 'ring of spd', 'ring of aim', 'armor', 'lucky charm', 'potion of healing', 'scroll of blessings']
+loot_list = ['totem', 'totem', 'totem', 'totem', 'totem', 'minor potion of atk', 'minor potion of atk', 'minor potion of atk', 'minor potion of def', 'minor potion of def', 'minor potion of def', 'minor potion of spd', 'minor potion of spd', 'minor potion of spd', 'minor potion of aim', 'minor potion of aim', 'minor potion of aim', 'minor potion of weakness', 'minor potion of weakness', 'minor potion of weakness', 'potion of atk', 'potion of atk', 'potion of def', 'potion of spd', 'potion of spd', 'potion of aim', 'potion of aim', 'potion of weakness', 'ring of atk', 'ring of def', 'ring of spd', 'ring of aim', 'armor', 'lucky charm', 'potion of healing', 'scroll of blessings']
 footer_text = "'-d <num>' to pick a die / '-t <target>' to target a body part for attack / '-a' to attack a body part / '-b <stat> <amount>' to use blessings on a stat / '-u <num>' to use an item from your inventory / '-i <num>' to learn about an inventory item / '-l <num>' to loot items / '-s' to resume your game / '-q' to quit your game / '-r' to restart your game / '-del <num>' to delete an item from your inventory / '-h' for a more detailed help."
 
 class Die():
@@ -254,9 +254,9 @@ class Game():
                         self.e_dice[0] += (p_def - e_atk) + 1
                         self.e_blessings -= (p_def - e_atk) + 1
                         if (p_def - e_atk) + 1 == 1:
-                            actionstr += f"The {self.enemy} uses {(p_def - e_atk) + 1} blessing to boost its attack to {e_atk+(p_def - e_atk) + 1}.\n**The {self.enemy} swings at your {self.e_targeting}, injuring it!\n**"
+                            actionstr += f"The {self.enemy} uses {(p_def - e_atk) + 1} blessing to boost its attack to {e_atk+(p_def - e_atk) + 1}.**\nThe {self.enemy} swings at your {self.e_targeting}, injuring it!**\n"
                         else:
-                            actionstr += f"The {self.enemy} uses {(p_def - e_atk) + 1} blessings to boost its attack to {e_atk+(p_def - e_atk) + 1}.\n**The {self.enemy} swings at your {self.e_targeting}, injuring it!\n**"
+                            actionstr += f"The {self.enemy} uses {(p_def - e_atk) + 1} blessings to boost its attack to {e_atk+(p_def - e_atk) + 1}.**\nThe {self.enemy} swings at your {self.e_targeting}, injuring it!**\n"
                         actionstr += self.w_l_check()
                         if self.e_targeting == 'chest' and quick:
                             for i in range(4):
@@ -342,9 +342,9 @@ async def on_command_error(ctx, error):
     if hasattr(ctx.command, 'on_error'):
         return
     elif isinstance(error, cmds.MissingRequiredArgument):
-        await ctx.send(f"You are missing one or more arguments for '{cmd}'. Use '/help commands' for more information on bot commands.")
+        await ctx.send(f"You are missing one or more arguments for '{cmd}'. Use '-h commands' for more information on bot commands.")
     elif isinstance(error, cmds.BadArgument):
-        await ctx.send(f"You have have one or more incorrect arguments for '{cmd}'. Use '/help commmands' for more information on bot commands.")
+        await ctx.send(f"You have have one or more incorrect arguments for '{cmd}'. Use '-h commands' for more information on bot commands.")
     elif isinstance(error, cmds.CommandNotFound):
         await ctx.send(f"The command '{cmd}' was not found.")
     else:
@@ -453,11 +453,11 @@ async def u(ctx, num:int):
                 game.actionstr = f'You use your scroll of blessings, increasing your blessings by {rand}.'
             elif 'weakness' in selected:
                 if 'minor' in selected:
+                    game.e_dice = [stat-1 for stat in game.e_dice]
+                    game.actionstr = f"You use your minor potion of weakness, reducing the enemy's stats by 1."
+                else:
                     game.e_dice = [stat-2 for stat in game.e_dice]
                     game.actionstr = f"You use your potion of weakness, reducing the enemy's stats by 2."
-                else:
-                    game.e_dice = [stat-1 for stat in game.e_dice]
-                    game.actionstr = f"You use your minor potion of weakness, reducing the enemy's stats by 2."
             elif 'healing' in selected:
                 game.p_wounds = ['none']
                 game.actionstr = f"You use your potion of healing, and you feel your wounds close!"
@@ -811,7 +811,7 @@ async def l(ctx, num:int):
             await ctx.send(f"Insufficient inventory space.")
             return
         elif game.loot == ['none']:
-            await ctx.send(f"You there are no items to loot.")
+            await ctx.send(f"There are no items to loot.")
             return
         if 'dead' in game.enemy:
             game.actionstr = game.take_loot(num)
