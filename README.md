@@ -23,7 +23,7 @@ Weapon stats can vary, but a good indicator of how good a weapon is is to look a
 Again, the easiest way to test it out is to join my [testing server](https://discord.gg/pPBTqMj).<br/><br/>
 To be able to run the bot:
   1. Download the 'structure.sql' file.
-  1. Import the data into your database (make sure to select 'Import from Self-Contained File)
+  1. Import the data into your database (make sure to select 'Import from Self-Contained File')
   1. Download the 'example_dice_config.py' file.
   1. Configure your config file so that you are able to log in to your database and your bot token is correct.
   1. Download the 'dice_bot.py' file and make sure you import the config file under the correct name.
