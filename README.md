@@ -4,7 +4,8 @@ It is heavily inspired by the game [Malleus Goblinificarium](https://ampersandbe
 
 ## Notes
 The code is very poorly written and extremely difficult to understand.<br/>
-Because this bot uses a MySQL database with pre-set-up tables, the best way to test it out is to join my [testing server](https://discord.gg/pPBTqMj).<br/>
+Because this bot uses a pre set up MySQL database, the easiest way to test it out is to join my [testing server](https://discord.gg/pPBTqMj).<br/>
+However, if you really want to set this bot up, look at the Setup section.
 
 ## Gameplay
 ###### General
@@ -18,6 +19,16 @@ Weapon stats can vary, but a good indicator of how good a weapon is is to look a
 ###### Commands
 '-d <num>' picks the die of the corresponding number.<br/>'-t <target (c: chest, g: guts, l: legs, a: arms, h:head)>' will target a body part to attack.<br/>'-a' to attack your target (usable after all die are drawn).<br/>'-b <stat (atk, def, spd, aim)> <amount>' to increase a stat by that amount via blessings.<br/>'-u <num>' uses the item of the corresponding number in your inventory.<br/>'-i <num>' inspects the item of the corresponding number in your inventory and gives you information.<br/>'-del <num>' deletes the item at the corresponding number in your inventory.<br/>'-l <num>' loot the item of the corresponding number in the loot pile. Only usable when there is a loot pile available. Note that looting a weapon will replace your current one.<br/>'-s' will start up a game if there is none and resume if there is.<br/>'-q' quits your game and deletes it.<br/>'-r' quits your current game and begins a new one.<br/>'-h' shows you a help command.
   
+## Setup
+Again, the easiest way to test it out is to join my [testing server](https://discord.gg/pPBTqMj).<br/><br/>
+To be able to run the bot:
+  1. Download the 'structure.sql' file.
+  1. Import the data into your database (make sure to select 'Import from Self-Contained File)
+  1. Download the 'example_dice_config.py' file.
+  1. Configure your config file so that you are able to log in to your database and your bot token is correct.
+  1. Download the 'dice_bot.py' file and make sure you import the config file under the correct name.
+  1. Run the bot.
+
 ## Used Libraries
  * [discord.py](https://github.com/Rapptz/discord.py)
  * [MySQLdb1](https://github.com/farcepest/MySQLdb1)
