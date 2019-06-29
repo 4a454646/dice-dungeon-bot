@@ -4,6 +4,7 @@ It is heavily inspired by the game [Malleus Goblinificarium](https://ampersandbe
 
 ## Notes
 The code is very poorly written and extremely difficult to understand.<br/>
+It also has its fair share of bugs because I don't have enough time to extensively test bugs.<br/>
 Because this bot uses a pre set up MySQL database, the easiest way to test it out is to join my [testing server](https://discord.gg/pPBTqMj).<br/>
 However, if you really want to set this bot up, look at the Setup section.
 
