@@ -23,7 +23,10 @@ weapons = {'montante':{'atk':(2,3), 'def':(1,2), 'spd':(1,2), 'aim':(1,2), 'spec
             'shield':{'atk':(1,1), 'def':(3,4), 'spd':(1,1), 'aim':(1,1), 'special':(None, 'chance to reduce enemy\'s speed next turn')},
             'rapier':{'atk':(1,2), 'def':(0,1), 'spd':(3,4), 'aim':(3,4), 'special':(None)},
             'dagger':{'atk':(1,2), 'def':(-1,0), 'spd':(3,4), 'aim':(3,4), 'special':(None, 'chance to dodge enemy\'s attacks')}}
-values = {'---(0)':0, 'aim(1)':1, 'spd(1)':2, 'aim(2)':3, 'spd(2)':4, 'aim(3)':5, 'spd(3)':6, 'def(1)':7, 'atk(1)':8, 'aim(4)':9, 'spd(4)':10, 'def(2)':11, 'atk(2)':12, 'aim(5)':13, 'spd(5)':14, 'aim(6)':15, 'spd(6)':16, 'def(3)':17, 'atk(3)':18, 'def(4)':19, 'atk(4)':20, 'def(5)':21, 'atk(5)':22, 'def(6)':23, 'atk(6)':24}
+
+#didn't have time to implement specials
+
+values = {'---(0)':0, 'aim(1)':1, 'spd(1)':2, 'aim(2)':3, 'spd(2)':4, 'aim(3)':5, 'spd(3)':6, 'def(1)':7, 'atk(1)':8, 'aim(4)':9, 'aim(5)':10, 'spd(5)':11, 'spd(4)':12, 'def(2)':13, 'atk(2)':12, 'aim(6)':15, 'spd(6)':16, 'def(3)':17, 'atk(3)':18, 'def(4)':19, 'atk(4)':20, 'def(5)':21, 'atk(5)':22, 'def(6)':23, 'atk(6)':24}
 kinds = ['atk', 'def', 'spd', 'aim']
 targets = {'c':'chest', 'g':'guts', 'l':'legs', 'a':'arms', 'h':'head'}
 target_list = ['filler', 'chest', 'filler', 'guts', 'filler', 'legs', 'filler', 'arms', 'filler', 'head']
@@ -157,7 +160,7 @@ class Game():
 
     def player_attack(self, quick=False):
         actionstr = ''
-        chance_to_succeed = round((self.p_stats['aim']+self.p_dice[3]+self.p_b_uses[1])**2/target_list.index(self.p_targeting)**2, 2)
+        chance_to_succeed = round((self.p_stats['aim']+self.p_dice[3]+self.p_b_uses[3]+self.p_extra[3])**2/target_list.index(self.p_targeting)**2*100)
         if chance_to_succeed > 1:
             going_to_hit = True
         else:
@@ -180,7 +183,7 @@ class Game():
                 else:
                     if self.p_targeting == 'chest' and quick:
                         for i in range(4):
-                            self.e_dice[i] -= self.e_d_count[1]
+                            self.e_dice[i] -= self.e_d_count[i] 
                     try: self.e_wounds.remove('none')
                     except: pass
                     if self.p_targeting not in self.e_wounds:
@@ -199,11 +202,11 @@ class Game():
             try: attacks.remove(wound)
             except ValueError: pass
         attack_prob = [round((self.e_stats['aim']+self.e_dice[3])**2/target_list.index(attack)**2, 2) for attack in attacks]
-        prob_filtered = min([round(prob, 2) if prob >= 0.83 else 0 for prob in attack_prob])
-        if prob_filtered != 0:
+        prob_filtered = min([prob if prob >= 0.83 else 999 for prob in attack_prob])
+        if prob_filtered != 999:
             self.e_targeting = attacks[attack_prob.index(prob_filtered)]
             return
-        self.e_targeting = attacks[attack_prob.index(max(attack_prob))]
+        self.e_targeting = attacks[attack_prob.index(max([prob if prob != 999 else 0 for prob in attack_prob]))]
 
     def enemy_attack(self, quick=False):
         actionstr = ''
@@ -227,7 +230,7 @@ class Game():
                     except: pass
                     if self.e_targeting not in self.p_wounds:
                         self.p_wounds.append(self.e_targeting)
-                        self.p_popper.append(self.p_targeting)
+                        self.p_popper.append(self.e_targeting)
                     actionstr += f"**The {self.enemy} swings at your {self.e_targeting}, injuring it!**\n"
                     actionstr += self.w_l_check()
                     if self.e_targeting == 'chest' and quick:
@@ -250,7 +253,7 @@ class Game():
                         except: pass
                         if self.e_targeting not in self.p_wounds:
                             self.p_wounds.append(self.e_targeting)
-                            self.p_popper.append(self.p_targeting)
+                            self.p_popper.append(self.e_targeting)
                         self.e_dice[0] += (p_def - e_atk) + 1
                         self.e_blessings -= (p_def - e_atk) + 1
                         if (p_def - e_atk) + 1 == 1:
@@ -275,6 +278,7 @@ class Game():
             popped = values_list.index(max(values_list))
             die = self.die_list.pop(popped)
             self.die_list.insert(popped, Die('---',0))
+            self.e_d_count[kinds.index(die.kind)] += 1
             if 'chest' in self.e_wounds:
                 self.e_dice[kinds.index(die.kind)] += die.value-1
             else:
@@ -459,6 +463,16 @@ async def u(ctx, num:int):
                     game.e_dice = [stat-2 for stat in game.e_dice]
                     game.actionstr = f"You use your potion of weakness, reducing the enemy's stats by 2."
             elif 'healing' in selected:
+                if 'chest' in game.p_wounds:
+                    if game.e_attacked == 1:
+                        for i in range(4):
+                            game.p_dice[i] += game.p_d_count[i]
+                if 'guts' in game.p_wounds:
+                    game.p_extra[1] += 3
+                if 'legs' in game.p_wounds:
+                    game.p_extra[2] += -99
+                if 'arms' in game.p_wounds:
+                    game.p_extra[0] += 3
                 game.p_wounds = ['none']
                 game.actionstr = f"You use your potion of healing, and you feel your wounds close!"
             elif 'potion' in selected:
@@ -634,6 +648,15 @@ async def c(ctx):
             else:
                 game_embed.set_footer(text="'-l <num>' to loot and '-c' to continue to the next level.")
             await ctx.send(embed=game_embed)
+            game.to_db()
+
+
+
+
+#   MAKE IT SO THAT POTIONS OF HEALING DON'T JUST REMOVE YOUR WOUNDS BUT ACTUALLY REMOVE STATUS EFFECTS FROM YOU
+
+
+
 
 @bot.command(aliases=['target', 'aim'])
 async def t(ctx, target:str):
