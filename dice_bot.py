@@ -171,7 +171,7 @@ class Game():
                 going_to_hit = False
                 actionstr += f"You swing at the {self.enemy}'s {self.p_targeting} and miss.\n"
         if going_to_hit:
-            p_atk, e_def = self.p_stats['atk']+self.p_dice[0]+self.p_b_uses[0], self.e_stats['def']+self.e_dice[1]
+            p_atk, e_def = self.p_stats['atk']+self.p_dice[0]+self.p_b_uses[0]+self.p_extra[0], self.e_stats['def']+self.e_dice[1]
             if p_atk > e_def:
                 if self.e_blessings >= p_atk - e_def:
                     self.e_dice[1] += (p_atk - e_def)
@@ -623,6 +623,16 @@ async def c(ctx):
             cursor.execute(f"UPDATE games SET enemy='{random.choice(list(enemies))}', e_wpn='{wpn}', e_wounds='none', e_stats='{e_updated_stats}', dice_ranks='{','.join([die.kind for die in die_list])}', dice_values='{','.join([str(die.value) for die in die_list])}', e_blessings={game.cur_level+2}, cur_level={game.cur_level+1}, loot='none' WHERE identi='{identi}';")
             cursor.execute(f"SELECT * FROM games WHERE identi={identi};")
             game = Game(cursor.fetchone())
+            game.actionstr = ''
+            if game.e_stats['spd'] + game.e_dice[2] > game.p_stats['spd'] + game.p_dice[2] + game.p_extra[2] and game.die_list[0].value != 0 and game.die_list[1].value != 0 and game.die_list[2].value != 0 and game.die_list[3].value != 0 and game.die_list[4].value != 0 and game.die_list[5].value != 0:
+                e_move = game.enemy_move()
+                if isinstance(e_move, Die):
+                    actionstr = ''
+                    if 'chest' in game.e_wounds:
+                        actionstr = f"The {game.enemy} chooses {str(e_move)}, boosting its {e_move.kind} stat by {e_move.value-1} due to its chest wound. It now has {game.e_stats[e_move.kind]+game.e_dice[kinds.index(e_move.kind)]} {e_move.kind}.\n"
+                    else:
+                        actionstr = f"The {game.enemy} chooses {str(e_move)}, boosting its {e_move.kind} stat by {e_move.value}. It now has {game.e_stats[e_move.kind]+game.e_dice[kinds.index(e_move.kind)]} {e_move.kind}.\n"
+                    game.actionstr = actionstr
             game.calc_attack()
             game_embed = game.gen_embed()
             if game.loot == ['none']:
@@ -632,7 +642,7 @@ async def c(ctx):
             await ctx.send(embed=game_embed)
         else:
             game.actionstr = ''
-            if game.e_stats['spd'] + game.e_dice[2] > game.p_stats['spd'] + game.p_dice[2] + game.p_b_uses[2] and game.die_list[0].value != 0 and game.die_list[1].value != 0 and game.die_list[2].value != 0 and game.die_list[3].value != 0 and game.die_list[4].value != 0 and game.die_list[5].value != 0:
+            if game.e_stats['spd'] + game.e_dice[2] > game.p_stats['spd'] + game.p_dice[2] + game.p_extra[2] and game.die_list[0].value != 0 and game.die_list[1].value != 0 and game.die_list[2].value != 0 and game.die_list[3].value != 0 and game.die_list[4].value != 0 and game.die_list[5].value != 0:
                 e_move = game.enemy_move()
                 if isinstance(e_move, Die):
                     actionstr = ''
